@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  
+  back:
+    build: ./server
+    container_name: 'app_backend'
+    ports:
+      - 3001:3001
+    volumes:
+      - ./server:/app/server
+    environment:
+      - PORT=3001
+      - DB_USER=root
+      - DB_PASS=docker
+      - DB_HOST=dataDb
+      - DB_NAME=blitz_carreira
+      - DB_PORT=3306
+    healthcheck: # Pinga o container 5 vezes a cada 10s para saber se está tudo certo
+      test: ["CMD", "lsof", "-t", "-i:3001"]
+      timeout: 10s
+      retries: 5
+    depends_on:
+        - dataDb
+
+  front:
+    build: ./client
+    container_name: 'app_frontend'
+    ports:
+      - 3000:3000
+
+  dataDb:
+    image: mysql:8.0.21
+    container_name: 'mysql_db'
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=docker
+    restart: always
+    healthcheck: # Pinga o container 5 vezes a cada 10s para saber se está tudo certo 
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+    cap_add:
+      - SYS_NICE # Diminui as notificações do mysql
