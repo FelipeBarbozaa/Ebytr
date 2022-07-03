@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 const connection = mysql.createPool({
-  host: 'localhost',
+  host: 'dataDb',
   user: 'root',
   password: 'docker',
   database: 'blitz_carreira',
