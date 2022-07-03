@@ -7,11 +7,11 @@ USE blitz_carreira;
 CREATE TABLE task(
   id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(50) NOT NULL,
-  status INT NOT NULL,
+  status INT NOT NULL
 );
 
-INSERT INTO task (ownerId, name, status)
+INSERT INTO task (name, status)
 VALUES
-  (1, 'Mudar a cor do botão', 0),
-  (1, 'Alterar a logo da página principal', 0),
-  (2, 'Centralizar a div da página de cadastro', 0);
+  ('Mudar a cor do botão', 0),
+  ('Alterar a logo da página principal', 0),
+  ('Centralizar a div da página de cadastro', 0);
