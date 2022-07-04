@@ -35,4 +35,10 @@ app.put('/', async (req, res) => {
   res.status(200).end();
 });
 
+app.put('/name', async (req, res) => {
+  const { name, id } = req.body;
+  await connection.execute('UPDATE task SET name = ? WHERE id = ?', [name, id]);
+  res.status(204).end();
+});
+
 app.listen(process.env.PORT);
