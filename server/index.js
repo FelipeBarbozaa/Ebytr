@@ -14,7 +14,24 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
   const { name } = req.body;
-  await connection.execute('INSERT INTO task (name, status) VALUES (?, ?)', [name, 0]);
+  await connection.execute('INSERT INTO task (name, status, createdAt) VALUES (?, ?, ?)', [name, 0, new Date()]);
+  res.status(200).end();
+});
+
+app.delete('/', async (req, res) => {
+  const { id } = req.body;
+  await connection.execute('DELETE FROM task where id = ?', [id]);
+  res.status(204).end();
+});
+
+app.put('/', async (req, res) => {
+  const { status, id } = req.body;
+  const table = {
+    pendente: 0,
+    'em andamento': 1,
+    concluido: 2,
+  };
+  await connection.execute('UPDATE task SET status = ? WHERE id = ?', [table[status], id]);
   res.status(200).end();
 });
 
