@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-
-const axios = require('axios').default;
-
-const instance = axios.create({ baseURL: 'http://localhost:3001' });
+import instance from './api/api';
+import CreateTask from './components/CreateTask';
 
 function App() {
-  const [inputTask, setInputTask] = useState('');
   const [task, setTask] = useState([]);
-  // eslint-disable-next-line prefer-const
-  let [callback, setCallback] = useState(0);
+  const [editTask, setEditTask] = useState('');
+  const [edit, setEdit] = useState(false);
+  const [callback, setCallback] = useState(0);
 
   // Pega todas as tarefas
   const getTask = async () => {
@@ -17,26 +15,12 @@ function App() {
     return result;
   };
 
-  const updateInputTask = ({ target: { value } }) => {
-    setInputTask(value);
-  };
-
-  // Cria uma tarefa
-  const createTask = async () => {
-    await instance({
-      method: 'post',
-      data: { name: inputTask },
-    });
-    setInputTask('');
-    setCallback(callback += 1);
-  };
-
   const deleteTask = async ({ target: { value } }) => {
     await instance({
       method: 'delete',
       data: { id: value },
     });
-    setCallback(callback += 1);
+    setCallback(callback + 1);
   };
 
   const changeStatus = async ({ target }) => {
@@ -44,12 +28,27 @@ function App() {
       method: 'put',
       data: { status: target.value, id: target.id },
     });
-    setCallback(callback += 1);
+    setCallback(callback + 1);
+  };
+
+  const enableTask = ({ target: { value } }) => {
+    setEdit(true);
+    setEditTask(value);
+  };
+
+  const changeTaskName = async ({ target }) => {
+    await instance({
+      method: 'put',
+      url: '/name',
+      data: { name: target.value, id: target.id },
+    });
+    setEdit(false);
+    setCallback(callback + 1);
   };
 
   useEffect(() => {
     getTask();
-  }, [callback]);
+  }, [callback], [edit]);
 
   const table = {
     0: 'pendente',
@@ -60,13 +59,21 @@ function App() {
   const options = [0, 1, 2];
   return (
     <div>
-      <form type="submit">
-        <input value={inputTask} onChange={updateInputTask} type="text" placeholder="Add your new task" />
-        <button onClick={createTask} type="button">Create</button>
-      </form>
+      <CreateTask callback={callback} setCallback={setCallback} />
       {task.map((e) => (
         <div key={e.id}>
-          <h1>{e.name}</h1>
+          { edit
+            ? (
+              <div>
+                <input value={editTask} onChange={(input) => setEditTask(input.target.value)} type="text" />
+                <button id={e.id} value={editTask} onClick={changeTaskName} type="button">Change</button>
+              </div>
+            ) : (
+              <div>
+                <h1>{e.name}</h1>
+                <button value={e.name} onClick={enableTask} type="button">Edit</button>
+              </div>
+            ) }
           <button value={e.id} type="button" onClick={deleteTask}>Delete</button>
           <select onChange={changeStatus} id={e.id} name="status">
             {options.map((option) => (
